@@ -5,7 +5,7 @@ module.exports = {
     address: '0.0.0.0',
   },
   accessControl: {
-    origin: 'http://askemma.com',
+    origin: '*',
     methods: 'GET,POST,PUT,DELETE,HEAD,OPTIONS',
     credentials: false,
   },
@@ -18,4 +18,11 @@ module.exports = {
   humanReadableOutput: true,
   collectionOutputType: 'json',
   urlPrefix: '',
+  auth: {
+    usersDBConnection: process.env.MONGODB_COLLECTION,
+    usersCollection: 'auth_users',
+    tokenDBConnection: process.env.MONGODB_COLLECTION,
+    tokensCollectionName: 'auth_tokens',
+    tokenExpirationTimeHours: 8,
+  },
 }
