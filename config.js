@@ -19,9 +19,8 @@ module.exports = {
   collectionOutputType: 'json',
   urlPrefix: '',
   auth: {
-    usersDBConnection: process.env.MONGODB_COLLECTION,
+    authDB: process.env.AUTH_DB || 'mongo_auth',
     usersCollection: 'auth_users',
-    tokenDBConnection: process.env.MONGODB_COLLECTION,
     tokensCollectionName: 'auth_tokens',
     tokenExpirationTimeHours: 8,
   },
