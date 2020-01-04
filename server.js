@@ -9,7 +9,6 @@
  */
 
 const fs = require('fs')
-const path = require('path')
 const express = require('express')
 const nocache = require('nocache')
 const bodyParser = require('body-parser')
@@ -17,6 +16,7 @@ const https = require('https')
 const cors = require('cors')
 const initRoutes = require('./lib/routes')
 const resolveConfig = require('./lib/config/resolve-config')
+const morgan = require('morgan')
 
 require('express-csv')
 
@@ -58,6 +58,7 @@ function init(app, config) {
     config.logger.info(config.accessControl)
     app.use(cors(config.accessControl))
   }
+  app.use(morgan('combined'))
   app.use(nocache())
   app.use(bodyParser())
 
