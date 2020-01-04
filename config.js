@@ -1,13 +1,13 @@
 module.exports = {
   db: process.env.MONGODB || process.env.MONGOLAB_URI || 'mongodb://localhost:27017',
   server: {
-    port: process.env.PORT || 3000,
+    port: process.env.PORT || 3010,
     address: '0.0.0.0',
   },
   accessControl: {
-    allowOrigin: '*',
-    allowMethods: 'GET,POST,PUT,DELETE,HEAD,OPTIONS',
-    allowCredentials: false,
+    origin: 'http://askemma.com',
+    methods: 'GET,POST,PUT,DELETE,HEAD,OPTIONS',
+    credentials: false,
   },
   mongoOptions: {
     serverOptions: {},

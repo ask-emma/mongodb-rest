@@ -14,7 +14,7 @@ const express = require('express')
 const nocache = require('nocache')
 const bodyParser = require('body-parser')
 const https = require('https')
-const extend = require('extend')
+const cors = require('cors')
 const initRoutes = require('./lib/routes')
 const resolveConfig = require('./lib/config/resolve-config')
 require('express-csv')
@@ -53,16 +53,15 @@ function stopServer() {
  * @param {object} config
  */
 function init(app, config) {
+  if (config.accessControl) {
+    config.logger.info(config.accessControl)
+    app.use(cors(config.accessControl))
+  }
   app.use(nocache())
   app.use(bodyParser())
 
   if (config.humanReadableOutput) {
     app.set('json spaces', 4)
-  }
-
-  if (config.accessControl) {
-    const accesscontrol = require('./lib/auth/accesscontrol')(config)
-    app.use(accesscontrol.handle)
   }
 
   app.get('/favicon.ico', function(req, res) {

@@ -1,13 +1,10 @@
 {
   "db": {
-    "port": 27101,
-    "host": "localhost",
-    "username": "admin",
-    "password": "4dm1n"
+    "port": 27017,
+    "host": "localhost"
   },
   "server": {
     "port": 3000,
-    //"address": "0.0.0.0"
     "address": "localhost"
   },
   "accessControl": {
