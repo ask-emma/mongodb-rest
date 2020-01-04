@@ -508,9 +508,8 @@ GET /db/collection?token=234d43fdg-34324d-dd-dsdf-f435d
 Authentication is enabled by adding `auth` to config.json as follows:
 
 	"auth": {
-		"usersDBConnection": "mongodb://localhost/auth",
+		"authDB": "AUTH_DB",
 		"usersCollection": "users",
-		"tokenDBConnection": "mongodb://localhost/auth",
 		"tokensCollectionName": "tokens",
 		"universalAuthToken": "this-token-grants-universal-access-so-please-change-it",
 		"tokenExpirationTimeHours": 8
@@ -518,8 +517,7 @@ Authentication is enabled by adding `auth` to config.json as follows:
 
 `auth` requires at least:
 
-* usersDBConnection - mongodb connection string for the users database.
-* tokenDBConnection - mongodb connection string for the tokens database.
+* authDB - mongodb database name that contains to the users collection.
 
 Here are the docs for mongodb connection strings: http://docs.mongodb.org/manual/reference/connection-string/
 

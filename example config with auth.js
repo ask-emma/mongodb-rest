@@ -22,10 +22,9 @@ module.exports = {
   collectionOutputType: 'json',
   urlPrefix: '',
   auth: {
-    usersDBConnection: 'mongodb://localhost/auth',
-    usersCollection: 'users',
-    tokenDBConnection: 'mongodb://localhost/auth',
-    tokensCollectionName: 'tokens',
+    auth_db: 'api_auth',
+    usersCollection: 'auth_users',
+    tokensCollectionName: 'auth_tokens',
     universalAuthToken: 'this-token-grants-universal-access-so-please-change-it',
     tokenExpirationTimeHours: 8,
   },
