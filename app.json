@@ -4,7 +4,5 @@
   "repository": "https://github.com/bedrockdata/mongodb-rest",
   "logo": "https://node-js-sample.herokuapp.com/node.png",
   "keywords": ["node", "express", "mongodb"],
-  "addons": [
-    "mongolab:sandbox"
-  ]
+  "addons": ["mongolab:sandbox"]
 }

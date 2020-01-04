@@ -1,311 +1,312 @@
-'use strict';
+'use strict'
 
 //
 // Utils for testing.
 //
 
-var mongo = require('mongodb');
-var MongoClient = mongo.MongoClient;
-var request = require('request');
-var Q = require('q');
-var connection = require('../lib/helpers/connection');
+var mongo = require('mongodb')
+var MongoClient = mongo.MongoClient
+var request = require('request')
+var Q = require('q')
+var connection = require('../lib/helpers/connection')
 
 //
 // Drop the specified test database.
 //
-var dropDatabase = function (testDbName) {
-    var db = null;
+var dropDatabase = function(testDbName) {
+  var db = null
 
-    return MongoClient.connect('mongodb://localhost:27017/' + testDbName)
-        .then(dbConn => (db = dbConn) && db.dropDatabase())
-        .then(() => db.close());
-};
+  return MongoClient.connect('mongodb://localhost:27017/' + testDbName)
+    .then(dbConn => (db = dbConn) && db.dropDatabase())
+    .then(() => db.close())
+}
 
 //
 // Save a document and return a promise.
-var saveDocument = function (collection, document) {
-    var deferred = Q.defer();
-    collection.save(document, function (err, doc) {
-        if (err) {
-            deferred.reject(err);
-        }
-        else {
-            deferred.resolve(doc);
-        }
-    });
+var saveDocument = function(collection, document) {
+  var deferred = Q.defer()
+  collection.save(document, function(err, doc) {
+    if (err) {
+      deferred.reject(err)
+    } else {
+      deferred.resolve(doc)
+    }
+  })
 
-    return deferred.promise;
-};
-
-//
-// Load data into a db collection.
-//
-var loadFixture = function (testDbName, testCollectionName, data) {
-    var db = null;
-
-    return MongoClient.connect('mongodb://localhost:27017/' + testDbName)
-        .then(dbConn => (db = dbConn) && db.createCollection(testCollectionName))
-        .then(function (collection) {
-            return Q.all(data.map(function (dataItem) {
-                return saveDocument(collection, dataItem);
-            }));
-        })
-        .then(() => db.close());
-};
+  return deferred.promise
+}
 
 //
 // Load data into a db collection.
 //
-var dropDatabaseAndLoadFixture = function (testDbName, testCollectionName, data) {
-    return dropDatabase(testDbName)
-        .then(function () {
-            return loadFixture(testDbName, testCollectionName, data);
-        });
-};
+var loadFixture = function(testDbName, testCollectionName, data) {
+  var db = null
+
+  return MongoClient.connect('mongodb://localhost:27017/' + testDbName)
+    .then(dbConn => (db = dbConn) && db.createCollection(testCollectionName))
+    .then(function(collection) {
+      return Q.all(
+        data.map(function(dataItem) {
+          return saveDocument(collection, dataItem)
+        }),
+      )
+    })
+    .then(() => db.close())
+}
+
+//
+// Load data into a db collection.
+//
+var dropDatabaseAndLoadFixture = function(testDbName, testCollectionName, data) {
+  return dropDatabase(testDbName).then(function() {
+    return loadFixture(testDbName, testCollectionName, data)
+  })
+}
 
 //
 // Request http document from the rest api.
 //
-var requestHttp = function (url) {
-    var deferred = Q.defer();
+var requestHttp = function(url) {
+  var deferred = Q.defer()
 
-    request(url, function (err, response, body) {
+  request(url, function(err, response, body) {
+    if (err) {
+      deferred.reject(err)
+      return
+    }
 
-        if (err) {
-            deferred.reject(err);
-            return;
-        }
+    deferred.resolve({
+      data: body,
+      response: response,
+    })
+  })
 
-        deferred.resolve({
-            data: body,
-            response: response,
-        });
-    });
-
-    return deferred.promise;
-};
+  return deferred.promise
+}
 
 //
 // Request JSON from the rest api.
 //
-var requestJson = function (url) {
-    var deferred = Q.defer();
+var requestJson = function(url) {
+  var deferred = Q.defer()
 
-    request(url, function (err, response, body) {
-        if (err) {
-            deferred.reject(err);
-            return;
-        }
+  request(url, function(err, response, body) {
+    if (err) {
+      deferred.reject(err)
+      return
+    }
 
-        deferred.resolve({
-            data: JSON.parse(body),
-            response: response,
-        });
-    });
+    deferred.resolve({
+      data: JSON.parse(body),
+      response: response,
+    })
+  })
 
-    return deferred.promise;
-};
+  return deferred.promise
+}
 
 //
 // Get a collection and run expectations on it.
 //
-var collectionJson = function (url) {
-    return requestJson(url);
-};
+var collectionJson = function(url) {
+  return requestJson(url)
+}
 
 //
 // Get an item from the db and run expectations on it.
 //
-var itemJson = function (collectionUrl, itemID) {
-    var itemUrl = collectionUrl + "/" + itemID.toString();
-    return requestJson(itemUrl);
-};
+var itemJson = function(collectionUrl, itemID) {
+  var itemUrl = collectionUrl + '/' + itemID.toString()
+  return requestJson(itemUrl)
+}
 
 //
 // Get the response for a db item.
 //
-var itemHttp = function (collectionUrl, itemID) {
-    var itemUrl = collectionUrl + "/" + itemID.toString();
-    return requestHttp(itemUrl);
-};
+var itemHttp = function(collectionUrl, itemID) {
+  var itemUrl = collectionUrl + '/' + itemID.toString()
+  return requestHttp(itemUrl)
+}
 
 //
 // Invoke a HTTP PUT.
 //
-var post = function (url, data) {
-    var deferred = Q.defer();
+var post = function(url, data) {
+  var deferred = Q.defer()
 
-    request.post({
-            url: url,
-            json: true,
-            body: data,
-        },
-        function (err, response, body) {
-            if (err) {
-                deferred.reject(err);
-                return;
-            }
+  request.post(
+    {
+      url: url,
+      json: true,
+      body: data,
+    },
+    function(err, response, body) {
+      if (err) {
+        deferred.reject(err)
+        return
+      }
 
-            deferred.resolve({
-                data: body,
-                response: response,
-            });
-        }
-    );
+      deferred.resolve({
+        data: body,
+        response: response,
+      })
+    },
+  )
 
-    return deferred.promise;
-};
+  return deferred.promise
+}
 
 //
 // Invoke a HTTP PATCH.
 //
-var patch = function (collectionUrl, itemID, data) {
-    var deferred = Q.defer();
-    var itemUrl = collectionUrl + "/" + itemID.toString();
+var patch = function(collectionUrl, itemID, data) {
+  var deferred = Q.defer()
+  var itemUrl = collectionUrl + '/' + itemID.toString()
 
-    request.patch({
-        url: itemUrl,
-        json: data,
-    }, function (err, response, body) {
-        if (err) {
-            deferred.reject(err);
-        }
-        else {
-            deferred.resolve({
-                data: body,
-                response: response,
-            });
-        }
-    });
+  request.patch(
+    {
+      url: itemUrl,
+      json: data,
+    },
+    function(err, response, body) {
+      if (err) {
+        deferred.reject(err)
+      } else {
+        deferred.resolve({
+          data: body,
+          response: response,
+        })
+      }
+    },
+  )
 
-    return deferred.promise;
-};
+  return deferred.promise
+}
 
 //
 // Invoke a HTTP PUT.
 //
-var put = function (collectionUrl, itemID, data) {
-    var deferred = Q.defer();
-    var itemUrl = collectionUrl + "/" + itemID.toString();
-    request.put({
-        url: itemUrl,
-        json: data,
-    }, function (err, response, body) {
-
-        if (err) {
-            deferred.reject(err);
-        }
-        else {
-            deferred.resolve({
-                data: body,
-                response: response,
-            });
-        }
-    });
-    return deferred.promise;
-};
+var put = function(collectionUrl, itemID, data) {
+  var deferred = Q.defer()
+  var itemUrl = collectionUrl + '/' + itemID.toString()
+  request.put(
+    {
+      url: itemUrl,
+      json: data,
+    },
+    function(err, response, body) {
+      if (err) {
+        deferred.reject(err)
+      } else {
+        deferred.resolve({
+          data: body,
+          response: response,
+        })
+      }
+    },
+  )
+  return deferred.promise
+}
 
 //
 // Inovke a HTTP DELETE.
 //
-var del = function (collectionUrl, itemID) {
-    var deferred = Q.defer();
-    var itemUrl = collectionUrl + "/" + itemID.toString();
-    request.del({
-        url: itemUrl,
-    }, function (err, response, body) {
+var del = function(collectionUrl, itemID) {
+  var deferred = Q.defer()
+  var itemUrl = collectionUrl + '/' + itemID.toString()
+  request.del(
+    {
+      url: itemUrl,
+    },
+    function(err, response, body) {
+      if (err) {
+        deferred.reject(err)
+      } else {
+        deferred.resolve({
+          data: body,
+          response: response,
+        })
+      }
+    },
+  )
+  return deferred.promise
+}
 
-        if (err) {
-            deferred.reject(err);
-        }
-        else {
-            deferred.resolve({
-                data: body,
-                response: response,
-            });
-        }
-    });
-    return deferred.promise;
-};
+var nextCollectionNumber = 1
+var nextDbNumber = 1
+var url = 'http://localhost:3000/'
+var dbsUrl = url + 'dbs'
 
-var nextCollectionNumber = 1;
-var nextDbNumber = 1;
-var url = 'http://localhost:3000/';
-var dbsUrl = url + 'dbs';
-
-var restServer = require('../server');
+var restServer = require('../server')
 
 module.exports = {
-    dropDatabaseAndLoadFixture: dropDatabaseAndLoadFixture,
-    dropDatabase: dropDatabase,
-    loadFixture: loadFixture,
-    requestHttp: requestHttp,
-    requestJson: requestJson,
-    collectionJson: collectionJson,
-    itemJson: itemJson,
-    itemHttp: itemHttp,
-    post: post,
-    put: put,
-    del: del,
-    patch: patch,
+  dropDatabaseAndLoadFixture: dropDatabaseAndLoadFixture,
+  dropDatabase: dropDatabase,
+  loadFixture: loadFixture,
+  requestHttp: requestHttp,
+  requestJson: requestJson,
+  collectionJson: collectionJson,
+  itemJson: itemJson,
+  itemHttp: itemHttp,
+  post: post,
+  put: put,
+  del: del,
+  patch: patch,
 
-    // Start the rest server.
-    startServer: function (config) {
-        var deferred = Q.defer();
+  // Start the rest server.
+  startServer: function(config) {
+    var deferred = Q.defer()
 
-        // Open the rest server for each test.
-        restServer.startServer(config, function (err) {
-            if (err) {
-                deferred.reject(err);
-            }
-            else {
-                deferred.resolve();
-            }
-        });
+    // Open the rest server for each test.
+    restServer.startServer(config, function(err) {
+      if (err) {
+        deferred.reject(err)
+      } else {
+        deferred.resolve()
+      }
+    })
 
-        return deferred.promise;
-    },
+    return deferred.promise
+  },
 
-    stopServer: function () {
-        restServer.stopServer();
-        connection.closeAll();
-    },
+  stopServer: function() {
+    restServer.stopServer()
+    connection.closeAll()
+  },
 
-    genDbsUrl: function () {
-        return dbsUrl;
-    },
+  genDbsUrl: function() {
+    return dbsUrl
+  },
 
-    genTestDbName: function () {
-        return 'mongodb_rest_test' + nextDbNumber++;
-    },
+  genTestDbName: function() {
+    return 'mongodb_rest_test' + nextDbNumber++
+  },
 
-    genTestCollectionName: function () {
-        return 'mongodb_test_collection' + nextCollectionNumber++;
-    },
+  genTestCollectionName: function() {
+    return 'mongodb_test_collection' + nextCollectionNumber++
+  },
 
-    genCollectionsUrl: function (dbName) {
-        return url + dbName;
-    },
+  genCollectionsUrl: function(dbName) {
+    return url + dbName
+  },
 
-    genCollectionUrl: function (dbName, collectionName) {
-        return this.genCollectionsUrl(dbName) + '/' + collectionName;
-    },
+  genCollectionUrl: function(dbName, collectionName) {
+    return this.genCollectionsUrl(dbName) + '/' + collectionName
+  },
 
-    genBulkUrl: function (dbName) {
-        return this.genCollectionsUrl(dbName) + '/bulk';
-    },
+  genBulkUrl: function(dbName) {
+    return this.genCollectionsUrl(dbName) + '/bulk'
+  },
 
-    genBulkUrlDatabaseEndpoint: function () {
-        return this.genCollectionsUrlDatabaseEndpoint() + 'bulk';
-    },
+  genBulkUrlDatabaseEndpoint: function() {
+    return this.genCollectionsUrlDatabaseEndpoint() + 'bulk'
+  },
 
-    genCollectionsUrlDatabaseEndpoint: function () {
-        return url;
-    },
+  genCollectionsUrlDatabaseEndpoint: function() {
+    return url
+  },
 
-    genCollectionUrlDatabaseEndpoint: function (collectionName) {
-        return this.genCollectionsUrlDatabaseEndpoint() + collectionName;
-    },
-
-};
-
+  genCollectionUrlDatabaseEndpoint: function(collectionName) {
+    return this.genCollectionsUrlDatabaseEndpoint() + collectionName
+  },
+}
