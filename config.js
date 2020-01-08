@@ -1,7 +1,13 @@
 module.exports = {
-  db: process.env.MONGODB || process.env.MONGOLAB_URI || 'mongodb://localhost:27017',
+  db: {
+    port: process.env.MONGO_PORT || 27017,
+    host: process.env.MONGO_HOST || 'localhost',
+    authSource: process.env.MONGO_AUTH_SOURCE,
+    username: process.env.MONGO_USERNAME,
+    password: process.env.MONGO_PASSWORD,
+  },
   server: {
-    port: process.env.PORT || 3000,
+    port: process.env.PORT || 3010,
     address: 'localhost',
   },
   accessControl: {
@@ -17,11 +23,5 @@ module.exports = {
   },
   humanReadableOutput: true,
   collectionOutputType: 'json',
-  urlPrefix: '',
-  auth: {
-    authDB: process.env.AUTH_DB || 'mongo_auth',
-    usersCollection: 'auth_users',
-    tokensCollectionName: 'auth_tokens',
-    tokenExpirationTimeHours: 8,
-  },
+  urlPrefix: '/api',
 }

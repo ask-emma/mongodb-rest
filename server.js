@@ -18,6 +18,7 @@ const initRoutes = require('./lib/routes')
 const resolveConfig = require('./lib/config/resolve-config')
 const morgan = require('morgan')
 
+require('dotenv').config()
 require('express-csv')
 
 var server = null
@@ -92,7 +93,7 @@ function run(app, config, onStarted) {
   }
 
   logger.info('Starting mongodb-rest server: ' + host + ':' + port)
-  logger.info('Connecting to db: ' + JSON.stringify(config.db, null, 4))
+  logger.info('Connecting to db: ')
 
   if (ssl.enabled) {
     if (ssl.keyFile) ssl.options.key = fs.readFileSync(ssl.keyFile)
